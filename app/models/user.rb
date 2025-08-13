@@ -28,34 +28,29 @@ class User < ApplicationRecord
   end
 
   # BEGIN TOTP 2FA
+  # Delegate TOTP logic to service class
   def totp_enabled?
-    totp_enabled_at.present? && totp_secret.present?
+    TotpService.new(self).enabled?
   end
 
   def generate_totp_secret!
-    self.totp_secret = ROTP::Base32.random_base32
+    TotpService.new(self).generate_secret!
   end
 
   def provisioning_uri(issuer: "MFA Sample")
-    return nil if totp_secret.blank?
-    label = email.presence || "user"
-    ROTP::TOTP.new(totp_secret, issuer: issuer).provisioning_uri(label)
+    TotpService.new(self).provisioning_uri(issuer: issuer)
   end
 
   def verify_totp(code, drift: 1)
-    return false if totp_secret.blank? || code.blank?
-    totp = ROTP::TOTP.new(totp_secret)
-    # Allow +/-1 time step (typically 30s) for clock skew
-    totp.verify(code.to_s.gsub(/\s+/, ''), drift_behind: drift, drift_ahead: drift)
+    TotpService.new(self).verify(code, drift: drift)
   end
 
   def enable_totp!
-    self.totp_enabled_at = Time.current
-    save!
+    TotpService.new(self).enable!
   end
 
   def disable_totp!
-    update!(totp_secret: nil, totp_enabled_at: nil, backup_codes_hashes: nil, backup_codes_salt: nil, backup_codes_generated_at: nil)
+    TotpService.new(self).disable!
   end
   # END TOTP 2FA
 
