@@ -2,6 +2,15 @@
 
 <% if logged_in? %>
   <p>Signed in as <%= current_user.email %></p>
+
+  <% if current_user.totp_enabled? %>
+    <p>Two-Factor Authentication: Enabled</p>
+    <%= button_to "Disable 2FA", two_factor_disable_path, method: :delete, data: { turbo_confirm: "Are you sure you want to disable 2FA?" } %>
+  <% else %>
+    <p>Two-Factor Authentication: Disabled</p>
+    <%= link_to "Enable 2FA", two_factor_setup_path %>
+  <% end %>
+
   <%= button_to "Logout", logout_path, method: :delete %>
 <% else %>
   <p>

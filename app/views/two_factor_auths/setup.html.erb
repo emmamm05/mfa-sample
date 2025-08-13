@@ -1,0 +1,24 @@
+<h1>Enable Two-Factor Authentication</h1>
+
+<p>Scan this in your authenticator app, or use the secret key manually.</p>
+
+<div>
+  <p><strong>Secret:</strong> <code><%= current_user.totp_secret %></code></p>
+  <p><strong>otpauth URL:</strong> <code><%= @otpauth_url %></code></p>
+</div>
+
+<p>After setting up the account in your authenticator app, enter a current 6-digit code to confirm and enable 2FA.</p>
+
+<%= form_with url: two_factor_setup_path, method: :post, local: true do |f| %>
+  <div>
+    <%= label_tag :code, "Authentication code" %><br>
+    <%= text_field_tag :code, nil, required: true, autofocus: true, autocomplete: "one-time-code", inputmode: "numeric", pattern: "[0-9]*" %>
+  </div>
+  <div>
+    <%= f.submit "Enable 2FA" %>
+  </div>
+<% end %>
+
+<p>
+  <%= button_to "Cancel and regenerate secret", two_factor_setup_path, method: :get %>
+</p>

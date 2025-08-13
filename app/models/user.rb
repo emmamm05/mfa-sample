@@ -26,6 +26,38 @@ class User < ApplicationRecord
     ActiveSupport::SecurityUtils.secure_compare(candidate_hash, password_hash)
   end
 
+  # BEGIN TOTP 2FA
+  def totp_enabled?
+    totp_enabled_at.present? && totp_secret.present?
+  end
+
+  def generate_totp_secret!
+    self.totp_secret = ROTP::Base32.random_base32
+  end
+
+  def provisioning_uri(issuer: "MFA Sample")
+    return nil if totp_secret.blank?
+    label = email.presence || "user"
+    ROTP::TOTP.new(totp_secret, issuer: issuer).provisioning_uri(label)
+  end
+
+  def verify_totp(code, drift: 1)
+    return false if totp_secret.blank? || code.blank?
+    totp = ROTP::TOTP.new(totp_secret)
+    # Allow +/-1 time step (typically 30s) for clock skew
+    totp.verify(code.to_s.gsub(/\s+/, ''), drift_behind: drift, drift_ahead: drift)
+  end
+
+  def enable_totp!
+    self.totp_enabled_at = Time.current
+    save!
+  end
+
+  def disable_totp!
+    update!(totp_secret: nil, totp_enabled_at: nil)
+  end
+  # END TOTP 2FA
+
   private
 
   def pbkdf2_hex(password, salt_hex, iterations)

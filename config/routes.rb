@@ -13,6 +13,13 @@ Rails.application.routes.draw do
   post "/login",  to: "sessions#create"
   delete "/logout", to: "sessions#destroy",  as: :logout
 
+  # Two-factor authentication routes
+  get  "/2fa/verify", to: "two_factor_auths#new",    as: :two_factor_verify
+  post "/2fa/verify", to: "two_factor_auths#create"
+  get  "/2fa/setup",  to: "two_factor_auths#setup",  as: :two_factor_setup
+  post "/2fa/setup",  to: "two_factor_auths#activate"
+  delete "/2fa",       to: "two_factor_auths#destroy", as: :two_factor_disable
+
   # Root page
   root "home#index"
 end
