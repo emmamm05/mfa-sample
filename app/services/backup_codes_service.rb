@@ -9,7 +9,6 @@ require 'active_support/security_utils'
 class BackupCodesService
   DEFAULT_COUNT = 10
   DEFAULT_LENGTH = 10
-  BACKUP_PBKDF2_ITERATIONS = 100_000
 
   def initialize(user)
     @user = user
@@ -60,13 +59,6 @@ class BackupCodesService
 
   private
 
-  def pbkdf2_hex(password, salt_hex, iterations)
-    salt = [salt_hex].pack('H*')
-    digest = OpenSSL::Digest::SHA256.new
-    bytes = OpenSSL::PKCS5.pbkdf2_hmac(password, salt, iterations.to_i, 32, digest)
-    bytes.unpack1('H*')
-  end
-
   def readable_code(length)
     alphabet = %w[A B C D E F G H J K L M N P Q R S T U V W X Y Z 2 3 4 5 6 7 8 9]
     Array.new(length) { alphabet.sample }.join
@@ -77,7 +69,7 @@ class BackupCodesService
   end
 
   def backup_code_hash(code)
-    pbkdf2_hex(code, @user.backup_codes_salt, BACKUP_PBKDF2_ITERATIONS)
+    CryptoUtils::PBKDF2.hex(code, @user.backup_codes_salt)
   end
 
   def parse_backup_hashes
