@@ -60,38 +60,18 @@ class User < ApplicationRecord
   # END TOTP 2FA
 
   # BEGIN Backup codes
-  # Generate a set of backup codes, store only hashed codes and return the plain codes for display once
+  # Delegate backup codes logic to service class
   def generate_backup_codes!(count: 10, length: 10)
-    self.backup_codes_salt = SecureRandom.hex(16)
-    plain_codes = Array.new(count) { readable_code(length) }
-    hashes = plain_codes.map { |c| backup_code_hash(c) }
-    self.backup_codes_hashes = JSON.generate(hashes)
-    self.backup_codes_generated_at = Time.current
-    save!
-    plain_codes
+    BackupCodesService.new(self).generate!(count: count, length: length)
   end
 
   def backup_codes_left
-    parsed = parse_backup_hashes
-    parsed.size
+    BackupCodesService.new(self).remaining_codes_count
   end
 
   # Attempts to consume a backup code; returns true if a code matched and was removed
   def consume_backup_code!(code)
-    return false if code.blank?
-    normalized = normalize_code(code)
-    hashes = parse_backup_hashes
-    return false if hashes.empty? || backup_codes_salt.blank?
-
-    candidate = backup_code_hash(normalized)
-    # constant-time compare over list
-    match_index = hashes.find_index { |h| ActiveSupport::SecurityUtils.secure_compare(h, candidate) rescue false }
-    return false if match_index.nil?
-
-    hashes.delete_at(match_index)
-    self.backup_codes_hashes = JSON.generate(hashes)
-    save!
-    true
+    BackupCodesService.new(self).consume!(code)
   end
   # END Backup codes
 

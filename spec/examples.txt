@@ -1,7 +1,7 @@
-example_id                               | status | run_time     |
----------------------------------------- | ------ | ------------ |
-./spec/system/home_spec.rb[1:1]          | passed | 2.8 seconds  |
-./spec/system/registrations_spec.rb[1:1] | passed | 4.42 seconds |
-./spec/system/registrations_spec.rb[1:2] | passed | 4.56 seconds |
-./spec/system/sign_in_spec.rb[1:1]       | passed | 4.03 seconds |
-./spec/system/sign_in_spec.rb[1:2]       | passed | 3.55 seconds |
+example_id                               | status | run_time        |
+---------------------------------------- | ------ | --------------- |
+./spec/system/home_spec.rb[1:1]          | passed | 0.54728 seconds |
+./spec/system/registrations_spec.rb[1:1] | passed | 0.70468 seconds |
+./spec/system/registrations_spec.rb[1:2] | passed | 2.05 seconds    |
+./spec/system/sign_in_spec.rb[1:1]       | passed | 0.74311 seconds |
+./spec/system/sign_in_spec.rb[1:2]       | passed | 0.72204 seconds |
