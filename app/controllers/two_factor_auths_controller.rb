@@ -1,7 +1,7 @@
 require 'base64'
 
 class TwoFactorAuthsController < ApplicationController
-  before_action :require_login, only: [:setup, :activate, :destroy]
+  before_action :require_login, only: [:setup, :activate, :destroy, :backup_codes, :regenerate_backup_codes]
 
   # Step shown after password login when 2FA is enabled
   def new
@@ -16,11 +16,15 @@ class TwoFactorAuthsController < ApplicationController
       redirect_to login_path, alert: "Session expired. Please login again." and return
     end
 
-    if user.verify_totp(params[:code])
+    code = params[:code]
+
+    if user.verify_totp(code) || user.consume_backup_code!(code)
       # Complete login
       session.delete(:pre_2fa_user_id)
       session[:user_id] = user.id
-      redirect_to root_path, notice: "Signed in successfully."
+      notice = "Signed in successfully."
+      notice += " Used a backup code; remember to regenerate a new set." unless user.verify_totp(code)
+      redirect_to root_path, notice: notice
     else
       flash.now[:alert] = "Invalid code. Please try again."
       render :new, status: :unprocessable_entity
@@ -43,7 +47,9 @@ class TwoFactorAuthsController < ApplicationController
     @user = current_user
     if @user.verify_totp(params[:code])
       @user.enable_totp!
-      redirect_to root_path, notice: "Two-factor authentication enabled."
+      @backup_codes = @user.generate_backup_codes!
+      session[:last_generated_backup_codes] = @backup_codes
+      redirect_to two_factor_backup_codes_path, notice: "Two-factor authentication enabled. Save your backup codes."
     else
       flash.now[:alert] = "Invalid code. Please try again."
       @otpauth_url = @user.provisioning_uri(issuer: app_issuer)
@@ -56,6 +62,27 @@ class TwoFactorAuthsController < ApplicationController
   def destroy
     current_user.disable_totp!
     redirect_to root_path, notice: "Two-factor authentication disabled."
+  end
+
+  # Show or generate backup codes for the logged-in user
+  def backup_codes
+    @user = current_user
+    @plain_codes = session.delete(:last_generated_backup_codes)
+    if @plain_codes.blank?
+      # If no freshly generated codes in session and none exist, generate a new set now
+      if @user.backup_codes_left == 0 || params[:force] == '1'
+        @plain_codes = @user.generate_backup_codes!
+        session[:last_generated_backup_codes] = @plain_codes # allow render after redirect in some flows
+      end
+    end
+  end
+
+  # Regenerate backup codes
+  def regenerate_backup_codes
+    @plain_codes = current_user.generate_backup_codes!
+    session[:last_generated_backup_codes] = @plain_codes
+    flash[:notice] = "Backup codes regenerated. Your previous codes are no longer valid."
+    redirect_to two_factor_backup_codes_path
   end
 
   private

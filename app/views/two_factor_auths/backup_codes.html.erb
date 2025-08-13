@@ -1,0 +1,22 @@
+<h1>Backup Codes</h1>
+
+<p>Use these one-time backup codes if you lose access to your authenticator app. Each code can be used only once.</p>
+
+<% if @plain_codes.present? %>
+  <div>
+    <p><strong>Save these codes in a secure place now. They will not be shown again.</strong></p>
+    <ul>
+      <% @plain_codes.each do |code| %>
+        <li><code><%= code.scan(/.{1,4}/).join('-') %></code></li>
+      <% end %>
+    </ul>
+  </div>
+<% else %>
+  <p>You currently have <strong><%= current_user.backup_codes_left %></strong> backup codes remaining.</p>
+<% end %>
+
+<p>
+  <%= button_to "Regenerate Backup Codes", two_factor_backup_codes_path, method: :post, data: { turbo_confirm: "Are you sure? This will invalidate all existing backup codes." } %>
+</p>
+
+<p><%= link_to "Back", root_path %></p>

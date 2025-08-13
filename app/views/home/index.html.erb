@@ -5,6 +5,9 @@
 
   <% if current_user.totp_enabled? %>
     <p>Two-Factor Authentication: Enabled</p>
+    <p>
+      <%= link_to "View/Regenerate Backup Codes", two_factor_backup_codes_path %>
+    </p>
     <%= button_to "Disable 2FA", two_factor_disable_path, method: :delete, data: { turbo_confirm: "Are you sure you want to disable 2FA?" } %>
   <% else %>
     <p>Two-Factor Authentication: Disabled</p>

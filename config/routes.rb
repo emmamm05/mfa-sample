@@ -19,6 +19,8 @@ Rails.application.routes.draw do
   get  "/2fa/setup",  to: "two_factor_auths#setup",  as: :two_factor_setup
   post "/2fa/setup",  to: "two_factor_auths#activate"
   delete "/2fa",       to: "two_factor_auths#destroy", as: :two_factor_disable
+  get  "/2fa/backup_codes", to: "two_factor_auths#backup_codes", as: :two_factor_backup_codes
+  post "/2fa/backup_codes", to: "two_factor_auths#regenerate_backup_codes"
 
   # Root page
   root "home#index"

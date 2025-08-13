@@ -1,14 +1,16 @@
 <h1>Two-Factor Verification</h1>
-<p>Please enter the 6-digit code from your authenticator app.</p>
+<p>Please enter the 6-digit code from your authenticator app. If you can't access your app, you may enter one of your backup codes instead.</p>
 
 <%= form_with url: two_factor_verify_path, local: true do |f| %>
   <div>
-    <%= label_tag :code, "Authentication code" %><br>
-    <%= text_field_tag :code, nil, required: true, autofocus: true, autocomplete: "one-time-code", inputmode: "numeric", pattern: "[0-9]*" %>
+    <%= label_tag :code, "Authentication or backup code" %><br>
+    <%= text_field_tag :code, nil, required: true, autofocus: true, autocomplete: "one-time-code" %>
   </div>
   <div>
     <%= f.submit "Verify" %>
   </div>
 <% end %>
 
-<p><%= link_to "Back to Login", login_path %></p>
+<p>
+  <%= link_to "Back to Login", login_path %>
+</p>

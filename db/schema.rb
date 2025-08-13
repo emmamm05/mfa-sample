@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_102000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_103000) do
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "name"
@@ -21,6 +21,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_102000) do
     t.datetime "updated_at", null: false
     t.string "totp_secret"
     t.datetime "totp_enabled_at"
+    t.text "backup_codes_hashes"
+    t.string "backup_codes_salt"
+    t.datetime "backup_codes_generated_at"
+    t.index ["backup_codes_generated_at"], name: "index_users_on_backup_codes_generated_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["totp_enabled_at"], name: "index_users_on_totp_enabled_at"
   end
