@@ -27,7 +27,7 @@ class TwoFactorAuthsController < ApplicationController
       redirect_to root_path, notice: notice
     else
       flash.now[:alert] = "Invalid code. Please try again."
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -54,7 +54,7 @@ class TwoFactorAuthsController < ApplicationController
       flash.now[:alert] = "Invalid code. Please try again."
       @otpauth_url = @user.provisioning_uri(issuer: app_issuer)
       @qr_data_uri = qr_png_data_uri(@otpauth_url)
-      render :setup, status: :unprocessable_entity
+      render :setup, status: :unprocessable_content
     end
   end
 
