@@ -1,7 +1,7 @@
-require 'base64'
+require "base64"
 
 class TwoFactorAuthsController < ApplicationController
-  before_action :require_login, only: [:setup, :activate, :destroy, :backup_codes, :regenerate_backup_codes]
+  before_action :require_login, only: [ :setup, :activate, :destroy, :backup_codes, :regenerate_backup_codes ]
 
   # Step shown after password login when 2FA is enabled
   def new
@@ -70,7 +70,7 @@ class TwoFactorAuthsController < ApplicationController
     @plain_codes = session.delete(:last_generated_backup_codes)
     if @plain_codes.blank?
       # If no freshly generated codes in session and none exist, generate a new set now
-      if @user.backup_codes_left == 0 || params[:force] == '1'
+      if @user.backup_codes_left == 0 || params[:force] == "1"
         @plain_codes = @user.generate_backup_codes!
         session[:last_generated_backup_codes] = @plain_codes # allow render after redirect in some flows
       end
@@ -98,9 +98,9 @@ class TwoFactorAuthsController < ApplicationController
       bit_depth: 1,
       border_modules: 2,
       color_mode: ChunkyPNG::COLOR_GRAYSCALE,
-      color: 'black',
+      color: "black",
       file: nil,
-      fill: 'white',
+      fill: "white",
       module_px_size: 6,
       size: 240
     )

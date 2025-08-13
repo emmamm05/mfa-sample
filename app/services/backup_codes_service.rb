@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'securerandom'
-require 'openssl'
-require 'json'
-require 'active_support/security_utils'
+require "securerandom"
+require "openssl"
+require "json"
+require "active_support/security_utils"
 
 # Service class to manage backup codes for a user
 class BackupCodesService
@@ -65,7 +65,7 @@ class BackupCodesService
   end
 
   def normalize_code(code)
-    code.to_s.strip.upcase.gsub(/[^A-Z0-9]/, '')
+    code.to_s.strip.upcase.gsub(/[^A-Z0-9]/, "")
   end
 
   def backup_code_hash(code)
@@ -74,7 +74,7 @@ class BackupCodesService
 
   def parse_backup_hashes
     raw = @user.backup_codes_hashes
-    return [] if raw.nil? || raw == ''
+    return [] if raw.nil? || raw == ""
     JSON.parse(raw)
   rescue StandardError
     []

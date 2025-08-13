@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rotp'
+require "rotp"
 
 # Service class to manage TOTP for a user
 class TotpService
@@ -34,7 +34,7 @@ class TotpService
     return false if @user.totp_secret.to_s.empty? || code.to_s.strip.empty?
 
     totp = ROTP::TOTP.new(@user.totp_secret)
-    normalized = code.to_s.gsub(/\s+/, '')
+    normalized = code.to_s.gsub(/\s+/, "")
     totp.verify(normalized, drift_behind: drift, drift_ahead: drift)
   end
 

@@ -3,7 +3,7 @@
 # Capybara + Cuprite setup for system specs
 Capybara.register_driver(:cuprite_external) do |app|
   options = {
-    window_size: [1400, 1400],
+    window_size: [ 1400, 1400 ],
     js_errors: true,
     process_timeout: 15,
     timeout: 15,

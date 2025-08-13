@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
         redirect_to two_factor_verify_path, notice: "Enter your authentication code to complete sign in."
       else
         session[:user_id] = user.id
-        redirect_to root_path, notice: "Signed in successfully." 
+        redirect_to root_path, notice: "Signed in successfully."
       end
     else
       flash.now[:alert] = "Invalid email or password"

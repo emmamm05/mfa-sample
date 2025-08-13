@@ -1,7 +1,7 @@
 class User < ApplicationRecord
-  require 'securerandom'
-  require 'openssl'
-  require 'json'
+  require "securerandom"
+  require "openssl"
+  require "json"
 
   PASSWORD_SALT_BYTES = 16
 
