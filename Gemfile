@@ -18,6 +18,10 @@ gem "stimulus-rails"
 gem "jbuilder"
 # TOTP 2FA support
 gem "rotp", "~> 6.3"
+# QR code generation for 2FA setup
+gem "rqrcode", "~> 2.2"
+# Render PNGs for QR code
+gem "chunky_png", "~> 1.4"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

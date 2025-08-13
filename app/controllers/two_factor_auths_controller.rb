@@ -1,3 +1,5 @@
+require 'base64'
+
 class TwoFactorAuthsController < ApplicationController
   before_action :require_login, only: [:setup, :activate, :destroy]
 
@@ -33,6 +35,7 @@ class TwoFactorAuthsController < ApplicationController
       @user.save!
     end
     @otpauth_url = @user.provisioning_uri(issuer: app_issuer)
+    @qr_data_uri = qr_png_data_uri(@otpauth_url)
   end
 
   # Confirm code and enable
@@ -44,6 +47,7 @@ class TwoFactorAuthsController < ApplicationController
     else
       flash.now[:alert] = "Invalid code. Please try again."
       @otpauth_url = @user.provisioning_uri(issuer: app_issuer)
+      @qr_data_uri = qr_png_data_uri(@otpauth_url)
       render :setup, status: :unprocessable_entity
     end
   end
@@ -58,5 +62,21 @@ class TwoFactorAuthsController < ApplicationController
 
   def app_issuer
     Rails.application.class.module_parent_name || "RailsApp"
+  end
+
+  def qr_png_data_uri(url)
+    return nil if url.blank?
+    qr = RQRCode::QRCode.new(url)
+    png = qr.as_png(
+      bit_depth: 1,
+      border_modules: 2,
+      color_mode: ChunkyPNG::COLOR_GRAYSCALE,
+      color: 'black',
+      file: nil,
+      fill: 'white',
+      module_px_size: 6,
+      size: 240
+    )
+    "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"
   end
 end

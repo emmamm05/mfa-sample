@@ -3,6 +3,10 @@
 <p>Scan this in your authenticator app, or use the secret key manually.</p>
 
 <div>
+  <% if @qr_data_uri.present? %>
+    <p><strong>Scan this QR Code in your authenticator:</strong></p>
+    <img src="<%= @qr_data_uri %>" alt="Scan this QR code with your authenticator app" width="240" height="240" />
+  <% end %>
   <p><strong>Secret:</strong> <code><%= current_user.totp_secret %></code></p>
   <p><strong>otpauth URL:</strong> <code><%= @otpauth_url %></code></p>
 </div>
