@@ -73,6 +73,8 @@ class User < ApplicationRecord
 
   # END Backup codes
 
+  has_many :webauthn_credentials, dependent: :destroy
+
   private
 
   def totp_service

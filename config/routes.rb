@@ -22,6 +22,14 @@ Rails.application.routes.draw do
   get  "/2fa/backup_codes", to: "two_factor_auths#backup_codes", as: :two_factor_backup_codes
   post "/2fa/backup_codes", to: "two_factor_auths#regenerate_backup_codes"
 
+  # WebAuthn endpoints (JSON)
+  scope "/webauthn" do
+    post "/options/creation", to: "webauthn#options_creation"
+    post "/create",           to: "webauthn#create"
+    post "/options/request",  to: "webauthn#options_request"
+    post "/verify",           to: "webauthn#verify"
+  end
+
   # Root page
   root "home#index"
 end

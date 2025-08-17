@@ -11,6 +11,12 @@
   </div>
 <% end %>
 
+<hr>
+<div data-controller="webauthn">
+  <button data-action="webauthn#authenticate">Use security key</button>
+  <div data-webauthn-target="status" style="margin-top: 0.5rem; color: #555;"></div>
+</div>
+
 <p>
   <%= link_to "Back to Login", login_path %>
 </p>

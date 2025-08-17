@@ -22,6 +22,8 @@ gem "rotp", "~> 6.3"
 gem "rqrcode", "~> 2.2"
 # Render PNGs for QR code
 gem "chunky_png", "~> 1.4"
+# WebAuthn (FIDO2) support for security keys / platform authenticators
+gem "webauthn", "~> 3.0"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_103000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_17_050000) do
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "name"
@@ -28,4 +28,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_103000) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["totp_enabled_at"], name: "index_users_on_totp_enabled_at"
   end
+
+  create_table "webauthn_credentials", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "external_id", null: false
+    t.text "public_key", null: false
+    t.integer "sign_count", default: 0, null: false
+    t.string "nickname"
+    t.string "transports"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_webauthn_credentials_on_external_id", unique: true
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
+  end
+
+  add_foreign_key "webauthn_credentials", "users"
 end
