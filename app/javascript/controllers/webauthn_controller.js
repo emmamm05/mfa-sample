@@ -124,4 +124,9 @@ export default class extends Controller {
   _setStatus(text) {
     if (this.hasStatusTarget) this.statusTarget.textContent = text
   }
+
+  _csrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]')
+    return meta ? meta.getAttribute('content') : ''
+  }
 }
