@@ -19,7 +19,7 @@ gem "jbuilder"
 # TOTP 2FA support
 gem "rotp", "~> 6.3"
 # QR code generation for 2FA setup
-gem "rqrcode", "~> 2.2"
+gem "rqrcode", "~> 3.1"
 # Render PNGs for QR code
 gem "chunky_png", "~> 1.4"
 # WebAuthn (FIDO2) support for security keys / platform authenticators
