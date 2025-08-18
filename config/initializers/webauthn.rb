@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require "uri"
 
 WebAuthn.configure do |config|
   # Relying Party name for display
@@ -9,7 +10,15 @@ WebAuthn.configure do |config|
   config.origin = origin
 
   # rp_id can be set explicitly; default is derived from origin's host
-  # config.rp_id = URI.parse(origin).host
+  rp_id = ENV["WEBAUTHN_RP_ID"]
+  unless rp_id.present?
+    begin
+      rp_id = URI.parse(origin).host
+    rescue => _
+      rp_id = nil
+    end
+  end
+  config.rp_id = rp_id
 
   # Timeouts (optional defaults)
   config.credential_options_timeout = 120000 # 120s

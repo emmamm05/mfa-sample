@@ -30,16 +30,19 @@ export default class extends Controller {
       const creationOptionsRes = await fetch("/webauthn/options/creation", { method: "POST", headers: { "Accept": "application/json", "X-CSRF-Token": this._csrfToken() } })
       const options = await creationOptionsRes.json()
 
+      // Support both shapes: { publicKey: {...} } or direct publicKey options
+      const publicKey = options.publicKey ? options.publicKey : options
+
       // Convert challenge and user.id to ArrayBuffers
-      options.publicKey.challenge = base64urlToBuffer(options.publicKey.challenge)
-      if (options.publicKey.user && options.publicKey.user.id) {
-        options.publicKey.user.id = new TextEncoder().encode(options.publicKey.user.id)
+      publicKey.challenge = base64urlToBuffer(publicKey.challenge)
+      if (publicKey.user && publicKey.user.id) {
+        publicKey.user.id = new TextEncoder().encode(publicKey.user.id)
       }
-      if (options.publicKey.excludeCredentials) {
-        options.publicKey.excludeCredentials = options.publicKey.excludeCredentials.map((cred) => ({ ...cred, id: base64urlToBuffer(cred.id) }))
+      if (publicKey.excludeCredentials) {
+        publicKey.excludeCredentials = publicKey.excludeCredentials.map((cred) => ({ ...cred, id: base64urlToBuffer(cred.id) }))
       }
 
-      const credential = await navigator.credentials.create(options)
+      const credential = await navigator.credentials.create({ publicKey })
       const credentialJSON = this._credentialToJSON(credential)
 
       const verifyRes = await fetch("/webauthn/create", {
@@ -69,17 +72,20 @@ export default class extends Controller {
       }
       const options = await requestOptionsRes.json()
 
-      options.publicKey.challenge = base64urlToBuffer(options.publicKey.challenge)
-      if (options.publicKey.allowCredentials) {
-        options.publicKey.allowCredentials = options.publicKey.allowCredentials.map((cred) => ({ ...cred, id: base64urlToBuffer(cred.id) }))
+      // Support both shapes here as well
+      const publicKey = options.publicKey ? options.publicKey : options
+
+      publicKey.challenge = base64urlToBuffer(publicKey.challenge)
+      if (publicKey.allowCredentials) {
+        publicKey.allowCredentials = publicKey.allowCredentials.map((cred) => ({ ...cred, id: base64urlToBuffer(cred.id) }))
       }
 
-      const assertion = await navigator.credentials.get(options)
+      const assertion = await navigator.credentials.get({ publicKey })
       const assertionJSON = this._credentialToJSON(assertion)
 
       const verifyRes = await fetch("/webauthn/verify", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": this._csrfToken() },
         body: JSON.stringify({ credential: assertionJSON })
       })
       const result = await verifyRes.json()
@@ -99,9 +105,16 @@ export default class extends Controller {
     const clientDataJSON = bufferToBase64url(cred.response.clientDataJSON)
 
     if (cred.type === "public-key" && cred.response.attestationObject) {
+      // Transports are exposed only on the client via getTransports(); Ruby object doesn't have it.
+      const transports = typeof cred.response.getTransports === "function"
+        ? cred.response.getTransports()
+        : (cred.response.transports || undefined)
+
       return {
         id: cred.rawId ? bufferToBase64url(cred.rawId) : cred.id,
+        rawId: cred.rawId ? bufferToBase64url(cred.rawId) : undefined,
         type: cred.type,
+        transports, // optional array of strings per WebAuthn L3
         response: {
           attestationObject: bufferToBase64url(cred.response.attestationObject),
           clientDataJSON
@@ -110,6 +123,7 @@ export default class extends Controller {
     } else {
       return {
         id: cred.rawId ? bufferToBase64url(cred.rawId) : cred.id,
+        rawId: cred.rawId ? bufferToBase64url(cred.rawId) : undefined,
         type: cred.type,
         response: {
           authenticatorData: bufferToBase64url(cred.response.authenticatorData),

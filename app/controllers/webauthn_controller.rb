@@ -29,7 +29,7 @@ class WebauthnController < ApplicationController
         external_id: Base64.urlsafe_encode64(webauthn_credential.id, padding: false),
         public_key: webauthn_credential.public_key,
         sign_count: webauthn_credential.sign_count,
-        transports: Array(webauthn_credential.transports).join(","),
+        transports: Array(params.dig(:credential, :transports)).join(","),
         nickname: params[:nickname].presence
       )
       record.save!
@@ -46,7 +46,7 @@ class WebauthnController < ApplicationController
 
     credentials = user.webauthn_credentials
     allow = credentials.map do |cred|
-      { id: Base64.urlsafe_decode64(cred.external_id), transports: cred.transports_array }
+      Base64.urlsafe_decode64(cred.external_id)
     end
 
     options = WebAuthn::Credential.options_for_get(allow: allow.presence)
